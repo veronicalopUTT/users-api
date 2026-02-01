@@ -249,4 +249,32 @@ public class UserService {
         }
     }
 
+    public User login(String taxId, String rawPassword) {
+
+        User user = users.stream()
+                .filter(u -> u.getTaxId().equalsIgnoreCase(taxId))
+                .findFirst()
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with taxId: " + taxId
+                        )
+                );
+
+        boolean matches = encryptionService.matches(
+                rawPassword,
+                user.getPassword()
+        );
+
+        if (!matches) {
+            throw new InvalidCredentialsException();
+        }
+
+
+
+        user.setPassword(null);
+
+        return user;
+    }
+
+
 }

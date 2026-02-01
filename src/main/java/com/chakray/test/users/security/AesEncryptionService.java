@@ -52,4 +52,8 @@ public class AesEncryptionService {
             throw new RuntimeException("Error decrypting password", e);
         }
     }
+    public boolean matches(String raw, String encrypted) {
+        return encrypt(raw).equals(encrypted);
+    }
+
 }
