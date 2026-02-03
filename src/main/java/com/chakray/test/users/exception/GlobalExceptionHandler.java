@@ -2,9 +2,11 @@ package com.chakray.test.users.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.HashMap;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -29,6 +31,26 @@ public class GlobalExceptionHandler {
                 "status", 400,
                 "error", "Bad Request",
                 "message", ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, Object> handleValidationErrors(
+            MethodArgumentNotValidException ex
+    ) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        return Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 400,
+                "error", "Bad Request",
+                "messages", errors
         );
     }
 }
