@@ -8,6 +8,8 @@ import com.chakray.test.users.dto.CreateUserRequest;
 import com.chakray.test.users.dto.UpdateUserRequest;
 import com.chakray.test.users.exception.UserNotFoundException;
 import com.chakray.test.users.security.AesEncryptionService;
+import com.chakray.test.users.exception.InvalidCredentialsException;
+import com.chakray.test.users.exception.DuplicateTaxIdException;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -124,6 +126,13 @@ public class UserService {
     }
 
     public User createUser(CreateUserRequest request) {
+
+        boolean exists = users.stream()
+                .anyMatch(u -> u.getTaxId().equalsIgnoreCase(request.getTaxId()));
+
+        if (exists) {
+            throw new DuplicateTaxIdException("tax_id already exists");
+        }
 
         User user = User.builder()
                 .id(UUID.randomUUID())
@@ -268,8 +277,6 @@ public class UserService {
         if (!matches) {
             throw new InvalidCredentialsException();
         }
-
-
 
         user.setPassword(null);
 
